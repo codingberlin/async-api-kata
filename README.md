@@ -51,7 +51,7 @@ sbt test
 
 I prefere to use functional tests whenever possible because they test in comparison to unit tests additionally the composition of the units. Another advantage is your freedom to refactor without the need to change the (unit) tests.
 
-With commit 69893300f85372e59ed20608f6f4599adcaebb05 you can see refactoring for the UsersApi interface and the used case classes without adapting unit tests but still covered functionality with the functional tests.
+With [this commit](https://github.com/codingberlin/async-api-kata/commit/69893300f85372e59ed20608f6f4599adcaebb05) you can see refactoring for the UsersApi interface and the used case classes without adapting unit tests but still covered functionality with the functional tests.
 
 According to use the right tool for the job, when one unit has big complexity I would exceptionally use a unit test for that unit in combination with one happy trail functional test because to write and to run functional tests for the big complexity would be ineffective in this case.
 
