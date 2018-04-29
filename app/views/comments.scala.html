@@ -1,4 +1,4 @@
-@(user: model.frontend.User)<!DOCTYPE html>
+@(comments: Seq[model.frontend.Comment])<!DOCTYPE html>
 <html lang="en">
 <head>
     <title>Comments</title>
@@ -6,6 +6,10 @@
 <body>
     @import play.twirl.api.StringInterpolation
     <div>Important Content</div>
-    @(user.name.map(name => html"<div>Name:</div><div>$name</div>").getOrElse(""))
+    @for(comment <- comments) {
+        <hr />
+        <div>@comment.title@(comment.name.map(name => html" from $name").getOrElse(""))</div>
+        <div>@comment.body</div>
+    }
 </body>
 </html>

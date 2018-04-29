@@ -16,7 +16,9 @@ class CommentsControllerSpec extends PlaySpec with GuiceOneServerPerSuite {
     import play.api.routing.sird._
 
     new GuiceApplicationBuilder()
-      .configure("userApiBaseUrl" -> s"http://localhost:$port/mocked-api/users")
+      .configure(
+        "userApiBaseUrl" -> s"http://localhost:$port/mocked-api/users",
+        "postsApiBaseUrl" -> s"http://localhost:$port/mocked-api/posts")
       // deprication warning can't be resolved while issue is open: https://github.com/playframework/playframework/issues/7553
       .additionalRouter(Router.from {
         case GET(p"/mocked-api/users/1") =>
@@ -31,27 +33,47 @@ class CommentsControllerSpec extends PlaySpec with GuiceOneServerPerSuite {
           Action {
             InternalServerError
           }
+        case GET(p"/mocked-api/posts" ? q"userId=$userId") =>
+          Action {
+            if (Seq("1", "2", "3").contains(userId))
+              Ok("""[{"title":"First Comment Title", "body":"First Comment Body"},
+                  |{"title":"Second Comment Title", "body":"Second Comment Body"}]""".stripMargin)
+            else
+              InternalServerError
+          }
       })
       .build()
   }
 
   "CommentsController.comments" should {
-    "deliver commentator's username and the important content when username is given" in {
+    "deliver commentator's username and comments and the important content when username is given" in {
       val response = requestFor(1)
 
       response.body must include("Alice")
+      response.body must include("First Comment Title")
+      response.body must include("First Comment Body")
+      response.body must include("Second Comment Title")
+      response.body must include("Second Comment Body")
       response.body must include("Important Content")
     }
 
-    "deliver the important content when username is not given" in {
+    "deliver the commentator's comments and the important content when username is not given" in {
       val response = requestFor(2)
 
+      response.body must include("First Comment Title")
+      response.body must include("First Comment Body")
+      response.body must include("Second Comment Title")
+      response.body must include("Second Comment Body")
       response.body must include("Important Content")
     }
 
-    "deliver the important content when user api is broken" in {
+    "deliver the commentator's comments and important content when user api is broken" in {
       val response = requestFor(3)
 
+      response.body must include("First Comment Title")
+      response.body must include("First Comment Body")
+      response.body must include("Second Comment Title")
+      response.body must include("Second Comment Body")
       response.body must include("Important Content")
     }
   }
