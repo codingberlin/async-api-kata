@@ -8,6 +8,9 @@ import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.Logger
+
+import scala.util.control.NonFatal
 
 @Singleton
 class UserApi @Inject()(config: Configuration, ws: WSClient)(
@@ -24,4 +27,9 @@ class UserApi @Inject()(config: Configuration, ws: WSClient)(
         _.asOpt
           .map(apiUser => User(Some(apiUser.username)))
           .getOrElse(User.empty))
+      .recover {
+        case NonFatal(throwable) =>
+          Logger.error("Could not retrieve user from api", throwable)
+          User.empty
+      }
 }

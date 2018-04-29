@@ -27,6 +27,10 @@ class CommentsControllerSpec extends PlaySpec with GuiceOneServerPerSuite {
           Action {
             Ok("""{}""")
           }
+        case GET(p"/mocked-api/users/3") =>
+          Action {
+            InternalServerError
+          }
       })
       .build()
   }
@@ -35,8 +39,6 @@ class CommentsControllerSpec extends PlaySpec with GuiceOneServerPerSuite {
     "deliver commentator's username and the important content when username is given" in {
       val response = requestFor(1)
 
-      response.status mustBe OK
-      response.contentType mustBe "text/html; charset=UTF-8"
       response.body must include("Alice")
       response.body must include("Important Content")
     }
@@ -44,8 +46,12 @@ class CommentsControllerSpec extends PlaySpec with GuiceOneServerPerSuite {
     "deliver the important content when username is not given" in {
       val response = requestFor(2)
 
-      response.status mustBe OK
-      response.contentType mustBe "text/html; charset=UTF-8"
+      response.body must include("Important Content")
+    }
+
+    "deliver the important content when user api is broken" in {
+      val response = requestFor(3)
+
       response.body must include("Important Content")
     }
   }
@@ -53,8 +59,12 @@ class CommentsControllerSpec extends PlaySpec with GuiceOneServerPerSuite {
   private def requestFor(userId: Int): WSResponse = {
     val wsClient = app.injector.instanceOf[WSClient]
     val commentsUrl = s"http://localhost:$port/comments/$userId"
+    val response = await(wsClient.url(commentsUrl).get())
 
-    await(wsClient.url(commentsUrl).get())
+    response.status mustBe OK
+    response.contentType mustBe "text/html; charset=UTF-8"
+
+    response
   }
 
 }
