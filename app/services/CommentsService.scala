@@ -34,7 +34,14 @@ class CommentsService @Inject()(userApi: UserApi, postsApi: PostsApi)(
       }
 
   private def retrievePosts(userId: Int): Future[Seq[ApiPost]] =
-    postsApi.retrievePosts(userId).map(_.getOrElse(Seq.empty))
+    postsApi
+      .retrievePosts(userId)
+      .map(_.getOrElse(Seq.empty))
+      .recover {
+        case NonFatal(throwable) =>
+          Logger.error("Could not retrieve posts from api", throwable)
+          Seq.empty
+      }
 
   private def mergeToFrontendComments(userName: Option[String],
                                       posts: Seq[ApiPost]): Seq[Comment] =

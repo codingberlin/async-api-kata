@@ -33,6 +33,10 @@ class CommentsControllerSpec extends PlaySpec with GuiceOneServerPerSuite {
           Action {
             InternalServerError
           }
+        case GET(p"/mocked-api/users/4") =>
+          Action {
+            InternalServerError
+          }
         case GET(p"/mocked-api/posts" ? q"userId=$userId") =>
           Action {
             if (Seq("1", "2", "3").contains(userId))
@@ -74,6 +78,12 @@ class CommentsControllerSpec extends PlaySpec with GuiceOneServerPerSuite {
       response.body must include("First Comment Body")
       response.body must include("Second Comment Title")
       response.body must include("Second Comment Body")
+      response.body must include("Important Content")
+    }
+
+    "deliver the important content when both apis are broken" in {
+      val response = requestFor(4)
+
       response.body must include("Important Content")
     }
   }
