@@ -1,9 +1,11 @@
-@()<!DOCTYPE html>
+@(user: model.frontend.User)<!DOCTYPE html>
 <html lang="en">
 <head>
     <title>Comments</title>
 </head>
 <body>
+    @import play.twirl.api.StringInterpolation
     <div>Important Content</div>
+    @(user.name.map(name => html"<div>Name:</div><div>$name</div>").getOrElse(""))
 </body>
 </html>
